@@ -9,8 +9,6 @@ function isStringLengthValid(string, maxLength) {
   return string.length <= maxLength;
 }
 
-isStringLengthValid('какая-то строка', 10);
-
 /**
  * @param string
  * @returns {boolean}
@@ -21,8 +19,6 @@ function isStringPalindrome(string) {
 
   return string === reverseString;
 }
-
-isStringPalindrome('Лёша на полке клопа нашёл ');
 
 /**
  * @param string
@@ -43,4 +39,4 @@ function getConcatNumberFromString(string) {
   return result.length === 0 ? NaN : parseInt(result, DECIMAL_SYSTEM);
 }
 
-getConcatNumberFromString(' string 1- 0 text 1.3');
+export {isStringPalindrome, isStringLengthValid, getConcatNumberFromString};
