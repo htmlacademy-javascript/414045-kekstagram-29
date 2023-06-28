@@ -1,4 +1,5 @@
 const DECIMAL_SYSTEM = 10;
+const MINUTES_IN_HOUR = 60;
 
 /**
  * @param string
@@ -39,4 +40,29 @@ function getConcatNumberFromString(string) {
   return result.length === 0 ? NaN : parseInt(result, DECIMAL_SYSTEM);
 }
 
-export {isStringPalindrome, isStringLengthValid, getConcatNumberFromString};
+isStringLengthValid('какая-то строка', 10);
+isStringPalindrome('Лёша на полке клопа нашёл ');
+getConcatNumberFromString(' string 1- 0 text 1.3');
+
+/**
+ * @param startWork
+ * @param endWork
+ * @param startMeeting
+ * @param meetingTimeMinutes
+ * @returns {boolean}
+ */
+function checkMeetingTime(startWork, endWork, startMeeting, meetingTimeMinutes) {
+  const getMinutes = (timeString) => {
+    const time = timeString.split(':');
+
+    return Number(time[0]) * MINUTES_IN_HOUR + Number(time[1]);
+  };
+
+  const startWorkMinutes = getMinutes(startWork);
+  const endWorkMinutes = getMinutes(endWork);
+  const startMeetingMinutes = getMinutes(startMeeting);
+
+  return startMeetingMinutes >= startWorkMinutes && startMeetingMinutes + meetingTimeMinutes <= endWorkMinutes;
+}
+
+checkMeetingTime('05:30', '18:00', '05:30', 50);
