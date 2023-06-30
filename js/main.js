@@ -1,3 +1,3 @@
-import {generatePhotos} from './mock.js';
+import { insertUserPhotosToPage } from './photos.js';
 
-generatePhotos();
+insertUserPhotosToPage();
