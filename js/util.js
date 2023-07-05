@@ -48,4 +48,12 @@ const createRandomIdGenerator = (minId, maxId) => {
   };
 };
 
-export {getRandomNumber, getRandomArrayElement, createRandomIdGenerator};
+/**
+ * Checks if a key is pressed escape
+ *
+ * @param evt
+ * @returns {boolean}
+ */
+const isEscKey = (evt) => evt.key === 'Escape';
+
+export {getRandomNumber, getRandomArrayElement, createRandomIdGenerator, isEscKey};

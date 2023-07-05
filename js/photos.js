@@ -1,11 +1,12 @@
 import { generatePhotos } from './mock.js';
+import { openFullPhoto } from './photo-popup.js';
 
 /**
- * Prepare photos DocumentFragment
+ * Render photos DocumentFragment
  *
  * @returns {DocumentFragment}
  */
-const preparePhotos = () => {
+const renderPhotoThumbs = () => {
   const picturesFragment = document.createDocumentFragment();
   const photoData = generatePhotos();
   const photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
@@ -21,15 +22,13 @@ const preparePhotos = () => {
     picturesFragment.append(photoElement);
   });
 
-  return picturesFragment;
+  document.querySelector('.pictures').append(picturesFragment);
+  document.querySelector('.pictures').addEventListener('click', (evt) => {
+    evt.preventDefault();
+    const thumb = photoData.find((item) => item.url === evt.target.attributes.src.value);
+
+    openFullPhoto(thumb);
+  });
 };
 
-/**
- * Insert user photos to page
- */
-const insertUserPhotosToPage = () => {
-  const photos = preparePhotos();
-  document.querySelector('.pictures').append(photos);
-};
-
-export { insertUserPhotosToPage };
+export { renderPhotoThumbs };

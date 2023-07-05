@@ -63,7 +63,7 @@ const generateLikes = () => getRandomNumber(15, 200);
  *
  * @returns {`img/avatar-${number}.svg`}
  */
-const generateAvatarUrl = () => `img/avatar-${getRandomNumber(1, 200)}.svg`;
+const generateAvatarUrl = () => `img/avatar-${getRandomNumber(1, 6)}.svg`;
 
 /**
  * Generate Comment object
