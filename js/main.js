@@ -1,3 +1,3 @@
-import { insertUserPhotosToPage } from './photos.js';
+import { renderPhotoThumbs } from './photos.js';
 
-insertUserPhotosToPage();
+renderPhotoThumbs();
