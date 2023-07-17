@@ -24,7 +24,9 @@ const renderPhotoThumbs = () => {
 
   document.querySelector('.pictures').append(picturesFragment);
   document.querySelector('.pictures').addEventListener('click', (evt) => {
-    evt.preventDefault();
+    if (evt.target.closest('.picture')) {
+      evt.preventDefault();
+    }
 
     if (evt.target.matches('.picture__img')) {
       const thumb = photoData.find((item) => item.url === evt.target.attributes.src.value);
