@@ -1,14 +1,13 @@
-import { generatePhotos } from './mock.js';
-import { openFullPhoto } from './photo-popup.js';
+import {openFullPhoto} from './photo-popup.js';
+import {getPhotoData} from './api.js';
 
 /**
  * Render photos DocumentFragment
  *
  * @returns {DocumentFragment}
  */
-const renderPhotoThumbs = () => {
+const renderPhotoThumbs = (photoData) => {
   const picturesFragment = document.createDocumentFragment();
-  const photoData = generatePhotos();
   const photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
   photoData.forEach((item) => {
@@ -36,4 +35,11 @@ const renderPhotoThumbs = () => {
   });
 };
 
-export { renderPhotoThumbs };
+/**
+ * Init module
+ */
+const init = () => {
+  getPhotoData(renderPhotoThumbs);
+};
+
+export {init};
