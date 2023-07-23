@@ -6,16 +6,187 @@ const COMMENT_LENGTH_ERROR_MESSAGE = 'Комментарий должен быт
 const HASHTAGS_COUNT_ERROR_MESSAGE = 'Можно указать не более 5 хештегов';
 const HASHTAGS_COUNT_ERROR_DUPLICATE = 'Не должно быть повторяющихся хештегов';
 const HASHTAGS_COUNT_ERROR_TEMPLATE = 'Хештег должен начинаться с символа #, содержать только буквы и цифры, и быть не длиннее 20 символов';
+const SCALE_STEP = 25;
+const SCALE_MAX = 100;
+const SCALE_MIN = 25;
 
-const uploadField = document.querySelector('.img-upload__input');
+const EFFECT_SETTINGS = {
+  chrome: {
+    styleFilterName: 'grayscale',
+    options: {
+      min: 0,
+      max: 1,
+      step: 0.1,
+      units: ''
+    }
+  },
+  sepia: {
+    styleFilterName: 'sepia',
+    options: {
+      min: 0,
+      max: 1,
+      step: 0.1,
+      units: ''
+    },
+  },
+  marvin: {
+    styleFilterName: 'invert',
+    options: {
+      min: 0,
+      max: 100,
+      step: 1,
+      units: '%'
+    },
+  },
+  phobos: {
+    styleFilterName: 'blur',
+    options: {
+      min: 0,
+      max: 3,
+      step: 0.1,
+      units: 'px'
+    },
+  },
+  heat: {
+    styleFilterName: 'brightness',
+    options: {
+      min: 1,
+      max: 3,
+      step: 0.1,
+      units: ''
+    },
+  },
+};
+
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadFormOverlay = document.querySelector('.img-upload__overlay');
 const uploadFormCloseElement = document.querySelector('#upload-cancel');
+const image = uploadForm.querySelector('.img-upload__preview');
+const photoScaleInput = uploadForm.querySelector('.scale__control--value');
+const slider = uploadForm.querySelector('.effect-level__slider');
+const filter = uploadForm.querySelector('.img-upload__effects');
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper'
 });
+
+/**
+ * Show slider
+ */
+const showSlider = () => uploadForm.querySelector('.img-upload__effect-level').classList.remove('hidden');
+
+/**
+ * Hide slider
+ */
+const hideSlider = () => uploadForm.querySelector('.img-upload__effect-level').classList.add('hidden');
+
+/**
+ * Destroy NoUiSlider
+ */
+const destroyNoUiSlider = () => {
+  if (slider.noUiSlider) {
+    slider.noUiSlider.destroy();
+  }
+};
+
+/**
+ * Reset style filter from image
+ */
+const resetStyleFilter = () => {
+  image.style.filter = null;
+};
+
+/**
+ * Reset effect and hide slider
+ */
+const resetEffect = () => {
+  hideSlider();
+  destroyNoUiSlider();
+  resetStyleFilter();
+};
+
+/**
+ * Photo scale up button click handler
+ */
+const onPhotoScaleUpButtonClick = () => {
+  const currentValue = Number(photoScaleInput.value.slice(0, -1));
+
+  if (currentValue <= SCALE_MAX - SCALE_STEP) {
+    const newValue = currentValue + SCALE_STEP;
+    photoScaleInput.value = `${newValue}%`;
+    image.style.scale = newValue / 100;
+  }
+};
+
+/**
+ * Photo scale down button click handler
+ */
+const onPhotoScaleDownButtonClick = () => {
+  const currentValue = Number(photoScaleInput.value.slice(0, -1));
+
+  if (currentValue >= SCALE_MIN + SCALE_STEP) {
+    const newValue = currentValue - SCALE_STEP;
+    photoScaleInput.value = `${newValue}%`;
+    image.style.scale = newValue / 100;
+  }
+};
+
+/**
+ * Get style filter with value
+ *
+ * @param {object} effect
+ * @param {number|float} value
+ * @returns {string}
+ */
+const getEffectStyleFilter = (effect, value = null) => value
+  ? `${effect.styleFilterName}(${value}${effect.options.units})`
+  : `${effect.styleFilterName}(${effect.options.max + effect.options.units}})`;
+
+/**
+ * Apply effect filter on image
+ *
+ * @param {object} currentEffect
+ */
+const applyEffect = (currentEffect) => {
+  const effect = EFFECT_SETTINGS[currentEffect];
+
+  destroyNoUiSlider();
+
+  noUiSlider.create(slider, {
+    range: {
+      min: effect.options.min,
+      max: effect.options.max
+    },
+    start: effect.options.max,
+    step: effect.options.step,
+    connect: 'lower'
+  });
+
+  image.style.filter = getEffectStyleFilter(effect);
+  slider.noUiSlider.on('update', () => {
+    const value = slider.noUiSlider.get();
+
+    image.style.filter = getEffectStyleFilter(effect, value);
+    uploadForm.querySelector('.effect-level__value').value = value;
+  });
+};
+
+/**
+ * Filter change handler
+ */
+const onFilterChange = () => {
+  const currentEffect = filter.querySelector('input:checked').value;
+
+  if (currentEffect === 'none') {
+    resetEffect();
+
+    return;
+  }
+
+  showSlider();
+  applyEffect(currentEffect);
+};
 
 /**
  * Check if the array has duplicates
@@ -83,6 +254,7 @@ const onSubmitButtonClick = (evt) => {
 const closeUploadForm = () => {
   uploadForm.reset();
   pristine.reset();
+  resetEffect();
   uploadFormOverlay.classList.add('hidden');
   document.querySelector('body').classList.remove('modal-open');
   uploadFormCloseElement.removeEventListener('click', onCloseElementClick);
@@ -120,18 +292,30 @@ const isTextFieldsFocus = () => {
   return document.activeElement === hashtagsInput || document.activeElement === commentInput;
 };
 
-uploadField.addEventListener('change', onFileInputChange);
-pristine.addValidator(uploadForm.querySelector('.text__description'), validateCommentLength, COMMENT_LENGTH_ERROR_MESSAGE);
-pristine.addValidator(uploadForm.querySelector('.text__hashtags'), validateHashtagsCount, HASHTAGS_COUNT_ERROR_MESSAGE);
-pristine.addValidator(uploadForm.querySelector('.text__hashtags'), validateHashtagsDuplicate, HASHTAGS_COUNT_ERROR_DUPLICATE);
-pristine.addValidator(uploadForm.querySelector('.text__hashtags'), validateHashtagsTemplate, HASHTAGS_COUNT_ERROR_TEMPLATE);
+const init = () => {
+  const hashtagsInput = uploadForm.querySelector('.text__hashtags');
+  const commentInput = uploadForm.querySelector('.text__description');
+  const uploadField = document.querySelector('.img-upload__input');
+  const photoScaleUpButton = uploadForm.querySelector('.scale__control--bigger');
+  const photoScaleDownButton = uploadForm.querySelector('.scale__control--smaller');
+
+  hideSlider();
+  uploadField.addEventListener('change', onFileInputChange);
+  photoScaleUpButton.addEventListener('click', onPhotoScaleUpButtonClick);
+  photoScaleDownButton.addEventListener('click', onPhotoScaleDownButtonClick);
+  filter.addEventListener('change', onFilterChange);
+  pristine.addValidator(commentInput, validateCommentLength, COMMENT_LENGTH_ERROR_MESSAGE);
+  pristine.addValidator(hashtagsInput, validateHashtagsCount, HASHTAGS_COUNT_ERROR_MESSAGE);
+  pristine.addValidator(hashtagsInput, validateHashtagsDuplicate, HASHTAGS_COUNT_ERROR_DUPLICATE);
+  pristine.addValidator(hashtagsInput, validateHashtagsTemplate, HASHTAGS_COUNT_ERROR_TEMPLATE);
+};
 
 /**
  * Esc click handler
  *
  * @param evt
  */
-function onEscKeydown (evt) {
+function onEscKeydown(evt) {
   if (isEscKey(evt) && !isTextFieldsFocus()) {
     evt.preventDefault();
     closeUploadForm();
@@ -141,6 +325,8 @@ function onEscKeydown (evt) {
 /**
  * Close element click handler
  */
-function onCloseElementClick () {
+function onCloseElementClick() {
   closeUploadForm();
 }
+
+export {init};
