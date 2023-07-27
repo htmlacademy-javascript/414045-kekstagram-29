@@ -35,11 +35,4 @@ const renderPhotoThumbs = (photoData) => {
   });
 };
 
-/**
- * Init module
- */
-const init = () => {
-  getPhotoData(renderPhotoThumbs);
-};
-
-export {init};
+getPhotoData(renderPhotoThumbs);

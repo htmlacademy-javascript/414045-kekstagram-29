@@ -16,7 +16,7 @@ const closeNotice = (type) => {
   }
 
   document.removeEventListener('keydown', onEscKeydown);
-  document.removeEventListener('click', onClickOutsideNotice);
+  document.removeEventListener('click', onOutsideNoticeClick);
 };
 
 /**
@@ -45,15 +45,15 @@ const showNotice = (type) => {
 
   switch (type) {
     case TYPE_SUCCESS:
-      successButton.addEventListener('click', closeSuccessNotice);
+      successButton.addEventListener('click', () => closeSuccessNotice());
       break;
     case TYPE_ERROR:
-      successButton.addEventListener('click', closeErrorNotice);
+      successButton.addEventListener('click', () => closeErrorNotice());
       break;
   }
 
   document.addEventListener('keydown', onEscKeydown);
-  document.addEventListener('click', onClickOutsideNotice);
+  document.addEventListener('click', onOutsideNoticeClick);
 };
 
 /**
@@ -88,7 +88,7 @@ function onEscKeydown(evt) {
  *
  * @param evt
  */
-function onClickOutsideNotice(evt) {
+function onOutsideNoticeClick(evt) {
   if (!evt.target.closest('.success__inner')) {
     closeSuccessNotice();
     closeErrorNotice();
