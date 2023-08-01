@@ -296,6 +296,27 @@ const onErrorUpload = () => {
 };
 
 /**
+ * Render form on page
+ */
+const renderForm = () => {
+  const hashtagsInput = uploadForm.querySelector('.text__hashtags');
+  const commentInput = uploadForm.querySelector('.text__description');
+  const uploadField = document.querySelector('.img-upload__input');
+  const photoScaleUpButton = uploadForm.querySelector('.scale__control--bigger');
+  const photoScaleDownButton = uploadForm.querySelector('.scale__control--smaller');
+
+  hideSlider();
+  uploadField.addEventListener('change', onFileInputChange);
+  photoScaleUpButton.addEventListener('click', onPhotoScaleUpButtonClick);
+  photoScaleDownButton.addEventListener('click', onPhotoScaleDownButtonClick);
+  filter.addEventListener('change', onFilterChange);
+  pristine.addValidator(commentInput, validateCommentLength, COMMENT_LENGTH_ERROR_MESSAGE);
+  pristine.addValidator(hashtagsInput, validateHashtagsCount, HASHTAGS_COUNT_ERROR_MESSAGE);
+  pristine.addValidator(hashtagsInput, validateHashtagsDuplicate, HASHTAGS_COUNT_ERROR_DUPLICATE);
+  pristine.addValidator(hashtagsInput, validateHashtagsTemplate, HASHTAGS_COUNT_ERROR_TEMPLATE);
+};
+
+/**
  * Submit button click handler
  *
  * @param evt
@@ -330,18 +351,4 @@ function onCloseElementClick() {
   closeUploadForm();
 }
 
-const hashtagsInput = uploadForm.querySelector('.text__hashtags');
-const commentInput = uploadForm.querySelector('.text__description');
-const uploadField = document.querySelector('.img-upload__input');
-const photoScaleUpButton = uploadForm.querySelector('.scale__control--bigger');
-const photoScaleDownButton = uploadForm.querySelector('.scale__control--smaller');
-
-hideSlider();
-uploadField.addEventListener('change', onFileInputChange);
-photoScaleUpButton.addEventListener('click', onPhotoScaleUpButtonClick);
-photoScaleDownButton.addEventListener('click', onPhotoScaleDownButtonClick);
-filter.addEventListener('change', onFilterChange);
-pristine.addValidator(commentInput, validateCommentLength, COMMENT_LENGTH_ERROR_MESSAGE);
-pristine.addValidator(hashtagsInput, validateHashtagsCount, HASHTAGS_COUNT_ERROR_MESSAGE);
-pristine.addValidator(hashtagsInput, validateHashtagsDuplicate, HASHTAGS_COUNT_ERROR_DUPLICATE);
-pristine.addValidator(hashtagsInput, validateHashtagsTemplate, HASHTAGS_COUNT_ERROR_TEMPLATE);
+export {renderForm};

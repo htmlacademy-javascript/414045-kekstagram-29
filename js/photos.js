@@ -2,11 +2,11 @@ import {openFullPhoto} from './photo-popup.js';
 import {getPhotoData} from './api.js';
 
 /**
- * Render photos DocumentFragment
+ * Prepare photos DocumentFragment
  *
  * @returns {DocumentFragment}
  */
-const renderPhotoThumbs = (photoData) => {
+const preparePhotoThumbs = (photoData) => {
   const picturesFragment = document.createDocumentFragment();
   const photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
 
@@ -35,4 +35,11 @@ const renderPhotoThumbs = (photoData) => {
   });
 };
 
-getPhotoData(renderPhotoThumbs);
+/**
+ * Render photo thumbs on page
+ */
+const renderPhotoThumbs = () => {
+  getPhotoData(preparePhotoThumbs);
+};
+
+export {renderPhotoThumbs};
