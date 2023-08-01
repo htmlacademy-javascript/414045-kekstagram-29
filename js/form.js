@@ -1,4 +1,6 @@
 import {isEscKey} from './util.js';
+import {sendData} from './api.js';
+import {showErrorNotice, showSuccessNotice} from './notice.js';
 
 const MAX_COMMENT_LENGTH = 140;
 const MAX_HASHTAGS_COUNT = 5;
@@ -91,10 +93,11 @@ const destroyNoUiSlider = () => {
 };
 
 /**
- * Reset style filter from image
+ * Reset filter effects from image
  */
-const resetStyleFilter = () => {
+const resetFilterEffects = () => {
   image.style.filter = null;
+  image.style.scale = null;
 };
 
 /**
@@ -103,7 +106,7 @@ const resetStyleFilter = () => {
 const resetEffect = () => {
   hideSlider();
   destroyNoUiSlider();
-  resetStyleFilter();
+  resetFilterEffects();
 };
 
 /**
@@ -234,21 +237,6 @@ const validateHashtagsCount = (value) => value.trim().split(' ').length <= MAX_H
 const validateCommentLength = (value) => value.length <= MAX_COMMENT_LENGTH;
 
 /**
- * Submit button click handler
- *
- * @param evt
- */
-const onSubmitButtonClick = (evt) => {
-  evt.preventDefault();
-
-  const isValid = pristine.validate();
-
-  if (isValid) {
-    uploadForm.submit();
-  }
-};
-
-/**
  * Close upload photo form
  */
 const closeUploadForm = () => {
@@ -292,7 +280,25 @@ const isTextFieldsFocus = () => {
   return document.activeElement === hashtagsInput || document.activeElement === commentInput;
 };
 
-const init = () => {
+/**
+ * On success upload handler
+ */
+const onSuccessUpload = () => {
+  closeUploadForm();
+  showSuccessNotice();
+};
+
+/**
+ * On error upload handler
+ */
+const onErrorUpload = () => {
+  showErrorNotice();
+};
+
+/**
+ * Render form on page
+ */
+const renderForm = () => {
   const hashtagsInput = uploadForm.querySelector('.text__hashtags');
   const commentInput = uploadForm.querySelector('.text__description');
   const uploadField = document.querySelector('.img-upload__input');
@@ -309,6 +315,22 @@ const init = () => {
   pristine.addValidator(hashtagsInput, validateHashtagsDuplicate, HASHTAGS_COUNT_ERROR_DUPLICATE);
   pristine.addValidator(hashtagsInput, validateHashtagsTemplate, HASHTAGS_COUNT_ERROR_TEMPLATE);
 };
+
+/**
+ * Submit button click handler
+ *
+ * @param evt
+ */
+function onSubmitButtonClick (evt) {
+  evt.preventDefault();
+
+  const isValid = pristine.validate();
+
+  if (isValid) {
+    const formData = new FormData(evt.target);
+    sendData(formData, onSuccessUpload, onErrorUpload);
+  }
+}
 
 /**
  * Esc click handler
@@ -329,4 +351,4 @@ function onCloseElementClick() {
   closeUploadForm();
 }
 
-export {init};
+export {renderForm};

@@ -1,5 +1,5 @@
-import { renderPhotoThumbs } from './photos.js';
-import { init as formInit } from './form.js';
+import {renderPhotoThumbs} from './photos.js';
+import {renderForm} from './form.js';
 
 renderPhotoThumbs();
-formInit();
+renderForm();
