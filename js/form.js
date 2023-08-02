@@ -11,6 +11,7 @@ const HASHTAGS_COUNT_ERROR_TEMPLATE = 'Хештег должен начинат�
 const SCALE_STEP = 25;
 const SCALE_MAX = 100;
 const SCALE_MIN = 25;
+const ACCEPT_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png'];
 
 const EFFECT_SETTINGS = {
   chrome: {
@@ -264,8 +265,15 @@ const openUploadForm = () => {
 /**
  * File input change handler
  */
-const onFileInputChange = () => {
-  openUploadForm();
+const onFileInputChange = (evt) => {
+  const file = evt.target.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = ACCEPT_FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+
+  if (matches) {
+    document.querySelector('.img-upload__preview img').src = URL.createObjectURL(file);
+    openUploadForm();
+  }
 };
 
 /**
@@ -284,6 +292,7 @@ const isTextFieldsFocus = () => {
  * On success upload handler
  */
 const onSuccessUpload = () => {
+  document.querySelector('#upload-submit').disabled = false;
   closeUploadForm();
   showSuccessNotice();
 };
@@ -292,6 +301,7 @@ const onSuccessUpload = () => {
  * On error upload handler
  */
 const onErrorUpload = () => {
+  document.querySelector('#upload-submit').disabled = false;
   showErrorNotice();
 };
 
@@ -321,8 +331,9 @@ const renderForm = () => {
  *
  * @param evt
  */
-function onSubmitButtonClick (evt) {
+function onSubmitButtonClick(evt) {
   evt.preventDefault();
+  document.querySelector('#upload-submit').disabled = true;
 
   const isValid = pristine.validate();
 
