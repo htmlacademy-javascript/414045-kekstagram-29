@@ -4,10 +4,10 @@ import {getRandomArrayElements, debounce} from './util.js';
 
 const RANDOM_PHOTO_COUNT = 10;
 
-const photoFilters = {
-  default: 'default',
-  random: 'random',
-  discussed: 'discussed'
+const photoFilter = {
+  DEFAULT: 'default',
+  RANDOM: 'random',
+  DISCUSSED: 'discussed'
 };
 
 /**
@@ -27,11 +27,11 @@ const getSortedPhotoDataByCommentsCount = (photoData) => photoData.slice().sort(
  */
 const getPhotoDataByFilter = (photoData, filter) => {
   switch (filter) {
-    case photoFilters.random:
+    case photoFilter.RANDOM:
       return getRandomArrayElements(photoData, RANDOM_PHOTO_COUNT);
-    case photoFilters.discussed:
+    case photoFilter.DISCUSSED:
       return getSortedPhotoDataByCommentsCount(photoData);
-    case photoFilters.default:
+    case photoFilter.DEFAULT:
       return photoData;
   }
 };
@@ -42,7 +42,7 @@ const getPhotoDataByFilter = (photoData, filter) => {
  * @param photoData
  * @param filter
  */
-const preparePhotosByFilter = (photoData, filter = photoFilters.default) => {
+const preparePhotosByFilter = (photoData, filter = photoFilter.DEFAULT) => {
   const picturesFragment = document.createDocumentFragment();
   const photoTemplate = document.querySelector('#picture').content.querySelector('.picture');
 

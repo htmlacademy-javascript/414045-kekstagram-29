@@ -61,8 +61,11 @@ const updateShowCommentCounter = (showCommentsCount) => {
  * @param allCommentsCount
  */
 const updateUploadCommentsButton = (currentShowCommentsCount, allCommentsCount) => {
+  const button = document.querySelector('.comments-loader');
+  button.classList.remove('hidden');
+
   if (currentShowCommentsCount === allCommentsCount) {
-    document.querySelector('.comments-loader').classList.add('hidden');
+    button.classList.add('hidden');
   }
 };
 
