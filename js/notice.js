@@ -3,19 +3,21 @@ import {isEscKey} from './util.js';
 const TYPE_SUCCESS = 'success';
 const TYPE_ERROR = 'error';
 
+const body = document.querySelector('body');
+
 /**
  * Close notice
  *
  * @param {string} type
  */
 const closeNotice = (type) => {
-  const messageElement = document.querySelector('body').querySelector(`.${type}`);
+  const messageElement = body.querySelector(`.${type}`);
 
   if (messageElement) {
     messageElement.remove();
   }
 
-  document.removeEventListener('keydown', onEscKeydown);
+  document.removeEventListener('keydown', onEscKeydown, true);
   document.removeEventListener('click', onOutsideNoticeClick);
 };
 
@@ -40,7 +42,7 @@ const closeErrorNotice = () => {
  */
 const showNotice = (type) => {
   const messageTemplate = document.querySelector(`#${type}`).cloneNode(true);
-  document.querySelector('body').append(messageTemplate.content);
+  body.append(messageTemplate.content);
   const successButton = document.querySelector(`.${type}__button`);
 
   switch (type) {
@@ -52,7 +54,7 @@ const showNotice = (type) => {
       break;
   }
 
-  document.addEventListener('keydown', onEscKeydown);
+  document.addEventListener('keydown', onEscKeydown, true);
   document.addEventListener('click', onOutsideNoticeClick);
 };
 
@@ -77,7 +79,7 @@ const showErrorNotice = () => {
  */
 function onEscKeydown(evt) {
   if (isEscKey(evt)) {
-    evt.preventDefault();
+    evt.stopPropagation();
     closeSuccessNotice();
     closeErrorNotice();
   }
@@ -89,8 +91,11 @@ function onEscKeydown(evt) {
  * @param evt
  */
 function onOutsideNoticeClick(evt) {
-  if (!evt.target.closest('.success__inner')) {
+  if (!evt.target.closest('.success__inner') && document.querySelector('body .success')) {
     closeSuccessNotice();
+  }
+
+  if (!evt.target.closest('.error__inner') && document.querySelector('body .error')) {
     closeErrorNotice();
   }
 }

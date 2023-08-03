@@ -1,6 +1,6 @@
 import {openFullPhoto} from './photo-popup.js';
 import {getPhotoData} from './api.js';
-import {getRandomArrayElements, debounce} from './util.js';
+import {getRandomArrayElements, getDebounceFunction} from './util.js';
 
 const RANDOM_PHOTO_COUNT = 10;
 
@@ -9,6 +9,8 @@ const photoFilter = {
   RANDOM: 'random',
   DISCUSSED: 'discussed'
 };
+
+const pictures = document.querySelector('.pictures');
 
 /**
  * Get sorted photo data by comments count
@@ -59,7 +61,7 @@ const preparePhotosByFilter = (photoData, filter = photoFilter.DEFAULT) => {
     picturesFragment.append(photoElement);
   });
 
-  document.querySelector('.pictures').append(picturesFragment);
+  pictures.append(picturesFragment);
 };
 
 /**
@@ -105,14 +107,14 @@ const reloadPhotoThumbs = (photoData, filterName) => {
 const preparePhotoThumbs = (photoData) => {
   preparePhotosByFilter(photoData);
 
-  const debounceReloadPhotoThumbs = debounce(reloadPhotoThumbs);
+  const debounceReloadPhotoThumbs = getDebounceFunction(reloadPhotoThumbs);
   const onFilterButtonClick = getFilterButtonClickHandler(photoData, debounceReloadPhotoThumbs);
 
   document.querySelector('.img-filters').classList.remove('img-filters--inactive');
   document.querySelector('#filter-default').addEventListener('click', onFilterButtonClick);
   document.querySelector('#filter-random').addEventListener('click', onFilterButtonClick);
   document.querySelector('#filter-discussed').addEventListener('click', onFilterButtonClick);
-  document.querySelector('.pictures').addEventListener('click', (evt) => {
+  pictures.addEventListener('click', (evt) => {
     if (evt.target.closest('.picture')) {
       evt.preventDefault();
     }

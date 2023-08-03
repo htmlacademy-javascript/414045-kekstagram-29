@@ -48,7 +48,7 @@ const showError = (errorMessage) => {
   errorElement.style.color = 'red';
   errorElement.style.textAlign = 'center';
   errorElement.id = 'apiError';
-  errorElement.innerHTML = `<p>При загрузке данных с сервера возникла ошибка: ${errorMessage}. Попробуйте перезагрузить страницу</p>`;
+  errorElement.textContent = `При загрузке данных с сервера возникла ошибка: ${errorMessage}. Попробуйте перезагрузить страницу`;
 
   main.prepend(errorElement);
 

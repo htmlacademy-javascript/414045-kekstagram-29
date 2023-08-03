@@ -2,10 +2,12 @@ import { isEscKey } from './util.js';
 
 const DEFAULT_SHOW_COMMENTS_COUNT = 5;
 
+const body = document.querySelector('body');
 const photoPopupTemplate = document.querySelector('.big-picture');
 const commentTemplate = document.querySelector('.social__comment');
 const closeElement = photoPopupTemplate.querySelector('#picture-cancel');
 const comments = photoPopupTemplate.querySelector('.social__comments');
+const commentsLoaderButton = photoPopupTemplate.querySelector('.comments-loader');
 
 let thumbComments;
 let showCountComments;
@@ -40,9 +42,9 @@ const prepareComments = (startComment = 0, count = DEFAULT_SHOW_COMMENTS_COUNT) 
 const closeFullPhoto = () => {
   photoPopupTemplate.classList.add('hidden');
   closeElement.removeEventListener('click', onCloseElementClick);
-  document.querySelector('body').classList.remove('modal-open');
+  body.classList.remove('modal-open');
   document.removeEventListener('keydown', onPopupEscKeydown);
-  photoPopupTemplate.querySelector('.comments-loader').removeEventListener('click', onMoreCommentsButtonClick);
+  commentsLoaderButton.removeEventListener('click', onMoreCommentsButtonClick);
 };
 
 /**
@@ -61,11 +63,10 @@ const updateShowCommentCounter = (showCommentsCount) => {
  * @param allCommentsCount
  */
 const updateUploadCommentsButton = (currentShowCommentsCount, allCommentsCount) => {
-  const button = document.querySelector('.comments-loader');
-  button.classList.remove('hidden');
+  commentsLoaderButton.classList.remove('hidden');
 
   if (currentShowCommentsCount === allCommentsCount) {
-    button.classList.add('hidden');
+    commentsLoaderButton.classList.add('hidden');
   }
 };
 
@@ -75,7 +76,7 @@ const updateUploadCommentsButton = (currentShowCommentsCount, allCommentsCount) 
  * @param thumb
  */
 const openFullPhoto = (thumb) => {
-  document.querySelector('body').classList.add('modal-open');
+  body.classList.add('modal-open');
   photoPopupTemplate.classList.remove('hidden');
   closeElement.addEventListener('click', onCloseElementClick);
   document.addEventListener('keydown', onPopupEscKeydown);
@@ -83,7 +84,6 @@ const openFullPhoto = (thumb) => {
   thumbComments = thumb.comments;
 
   const image = photoPopupTemplate.querySelector('.big-picture__img img');
-  const uploadMoreCommentButton = photoPopupTemplate.querySelector('.comments-loader');
   const preparedComments = prepareComments();
 
   showCountComments = preparedComments.childElementCount;
@@ -99,7 +99,7 @@ const openFullPhoto = (thumb) => {
   updateShowCommentCounter(showCountComments);
   updateUploadCommentsButton(showCountComments, thumbComments.length);
 
-  uploadMoreCommentButton.addEventListener('click', onMoreCommentsButtonClick);
+  commentsLoaderButton.addEventListener('click', onMoreCommentsButtonClick);
 };
 
 /**
@@ -134,4 +134,4 @@ function onMoreCommentsButtonClick() {
   comments.append(addComments);
 }
 
-export { openFullPhoto };
+export {openFullPhoto};
