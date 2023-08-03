@@ -61,13 +61,18 @@ const EFFECT_SETTINGS = {
   },
 };
 
+const body = document.querySelector('body');
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadFormOverlay = document.querySelector('.img-upload__overlay');
 const uploadFormCloseElement = document.querySelector('#upload-cancel');
-const image = uploadForm.querySelector('.img-upload__preview');
+const image = uploadForm.querySelector('.img-upload__preview img');
 const photoScaleInput = uploadForm.querySelector('.scale__control--value');
+const sliderContainer = uploadForm.querySelector('.img-upload__effect-level');
 const slider = uploadForm.querySelector('.effect-level__slider');
 const filter = uploadForm.querySelector('.img-upload__effects');
+const hashtagsInput = uploadForm.querySelector('.text__hashtags');
+const commentInput = uploadForm.querySelector('.text__description');
+const submitButton = document.querySelector('#upload-submit');
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
@@ -77,12 +82,12 @@ const pristine = new Pristine(uploadForm, {
 /**
  * Show slider
  */
-const showSlider = () => uploadForm.querySelector('.img-upload__effect-level').classList.remove('hidden');
+const showSlider = () => sliderContainer.classList.remove('hidden');
 
 /**
  * Hide slider
  */
-const hideSlider = () => uploadForm.querySelector('.img-upload__effect-level').classList.add('hidden');
+const hideSlider = () => sliderContainer.classList.add('hidden');
 
 /**
  * Destroy NoUiSlider
@@ -119,7 +124,7 @@ const onPhotoScaleUpButtonClick = () => {
   if (currentValue <= SCALE_MAX - SCALE_STEP) {
     const newValue = currentValue + SCALE_STEP;
     photoScaleInput.value = `${newValue}%`;
-    image.style.scale = newValue / 100;
+    image.style.transform = `scale(${newValue / 100})`;
   }
 };
 
@@ -132,7 +137,7 @@ const onPhotoScaleDownButtonClick = () => {
   if (currentValue >= SCALE_MIN + SCALE_STEP) {
     const newValue = currentValue - SCALE_STEP;
     photoScaleInput.value = `${newValue}%`;
-    image.style.scale = newValue / 100;
+    image.style.transform = `scale(${newValue / 100})`;
   }
 };
 
@@ -207,7 +212,7 @@ const hasDuplicate = (array) => array.filter((item, index) => array.indexOf(item
  * @returns {boolean|boolean}
  */
 const validateHashtagsTemplate = (value) => {
-  const hashtags = value.trim().split(' ');
+  const hashtags = value.replace(/ +/g, ' ').trim().split(' ');
   const exp = /^#([a-zа-яё0-9]){1,20}$/i;
 
   return value.trim().length ? hashtags.every((hashtag) => hashtag.match(exp)) : true;
@@ -219,7 +224,7 @@ const validateHashtagsTemplate = (value) => {
  * @param value
  * @returns {boolean}
  */
-const validateHashtagsDuplicate = (value) => !hasDuplicate(value.trim().toLowerCase().split(' '));
+const validateHashtagsDuplicate = (value) => !hasDuplicate(value.replace(/ +/g, ' ').trim().toLowerCase().split(' '));
 
 /**
  * Validate hashtags count
@@ -227,7 +232,7 @@ const validateHashtagsDuplicate = (value) => !hasDuplicate(value.trim().toLowerC
  * @param value
  * @returns {boolean}
  */
-const validateHashtagsCount = (value) => value.trim().split(' ').length <= MAX_HASHTAGS_COUNT;
+const validateHashtagsCount = (value) => value.replace(/ +/g, ' ').trim().split(' ').length <= MAX_HASHTAGS_COUNT;
 
 /**
  * Validate comment length
@@ -245,7 +250,7 @@ const closeUploadForm = () => {
   pristine.reset();
   resetEffect();
   uploadFormOverlay.classList.add('hidden');
-  document.querySelector('body').classList.remove('modal-open');
+  body.classList.remove('modal-open');
   uploadFormCloseElement.removeEventListener('click', onCloseElementClick);
   document.removeEventListener('keydown', onEscKeydown);
   uploadForm.removeEventListener('submit', onSubmitButtonClick);
@@ -256,7 +261,7 @@ const closeUploadForm = () => {
  */
 const openUploadForm = () => {
   uploadFormOverlay.classList.remove('hidden');
-  document.querySelector('body').classList.add('modal-open');
+  body.classList.add('modal-open');
   uploadFormCloseElement.addEventListener('click', onCloseElementClick);
   document.addEventListener('keydown', onEscKeydown);
   uploadForm.addEventListener('submit', onSubmitButtonClick);
@@ -271,7 +276,11 @@ const onFileInputChange = (evt) => {
   const matches = ACCEPT_FILE_EXTENSIONS.some((ext) => fileName.endsWith(ext));
 
   if (matches) {
-    document.querySelector('.img-upload__preview img').src = URL.createObjectURL(file);
+    const urlImage = URL.createObjectURL(file);
+    image.src = urlImage;
+    document.querySelectorAll('.effects__preview').forEach((item) => {
+      item.style.backgroundImage = `url(${urlImage})`;
+    });
     openUploadForm();
   }
 };
@@ -281,18 +290,13 @@ const onFileInputChange = (evt) => {
  *
  * @returns {boolean}
  */
-const isTextFieldsFocus = () => {
-  const hashtagsInput = uploadForm.querySelector('.text__hashtags');
-  const commentInput = uploadForm.querySelector('.text__description');
-
-  return document.activeElement === hashtagsInput || document.activeElement === commentInput;
-};
+const isTextFieldsFocus = () => document.activeElement === hashtagsInput || document.activeElement === commentInput;
 
 /**
  * On success upload handler
  */
 const onSuccessUpload = () => {
-  document.querySelector('#upload-submit').disabled = false;
+  submitButton.disabled = false;
   closeUploadForm();
   showSuccessNotice();
 };
@@ -301,7 +305,7 @@ const onSuccessUpload = () => {
  * On error upload handler
  */
 const onErrorUpload = () => {
-  document.querySelector('#upload-submit').disabled = false;
+  submitButton.disabled = false;
   showErrorNotice();
 };
 
@@ -309,8 +313,6 @@ const onErrorUpload = () => {
  * Render form on page
  */
 const renderForm = () => {
-  const hashtagsInput = uploadForm.querySelector('.text__hashtags');
-  const commentInput = uploadForm.querySelector('.text__description');
   const uploadField = document.querySelector('.img-upload__input');
   const photoScaleUpButton = uploadForm.querySelector('.scale__control--bigger');
   const photoScaleDownButton = uploadForm.querySelector('.scale__control--smaller');
@@ -333,11 +335,11 @@ const renderForm = () => {
  */
 function onSubmitButtonClick(evt) {
   evt.preventDefault();
-  document.querySelector('#upload-submit').disabled = true;
 
   const isValid = pristine.validate();
 
   if (isValid) {
+    submitButton.disabled = true;
     const formData = new FormData(evt.target);
     sendData(formData, onSuccessUpload, onErrorUpload);
   }
